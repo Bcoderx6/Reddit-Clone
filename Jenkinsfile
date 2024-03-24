@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools {
         jdk 'jdk17'
-        nodejs 'node16' // Update to the correct version of Node.js you want to use
+        nodejs 'nodejs' // Update to the correct version of Node.js you want to use
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
