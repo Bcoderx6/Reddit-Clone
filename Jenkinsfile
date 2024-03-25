@@ -2,14 +2,14 @@ pipeline {
     agent any
     tools {
         jdk 'jdk17'
-        nodejs 'nodejs' // Update to the correct version of Node.js you want to use
+        nodejs 'nodejs'
     }
     environment {
         SCANNER_HOME = tool 'sonarqube-scanner'
         APP_NAME = "reddit-clone-pipeline"
         RELEASE = "1.0.0"
         DOCKER_USER = "mryash"
-        DOCKER_PASS = 'dockerhub'
+        DOCKER_CREDENTIALS_ID = 'DockerHub' // Update with your Docker Hub credentials ID
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
@@ -51,10 +51,12 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_PASS) {
-                        def dockerImage = docker.build "${IMAGE_NAME}:${IMAGE_TAG}"
-                        dockerImage.push()
-                        dockerImage.push('latest')
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        docker.withRegistry('', DOCKER_PASS) {
+                            def dockerImage = docker.build "${IMAGE_NAME}:${IMAGE_TAG}"
+                            dockerImage.push()
+                            dockerImage.push('latest')
+                        }
                     }
                 }
             }
